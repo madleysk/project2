@@ -1,0 +1,160 @@
+{% extends "layout.html" %}
+
+{% block body%}
+<style>
+	.chat-box{
+		min-width:400px;
+		min-height:500px;
+		max-width:100%;
+		margin:auto;
+		margin-top:10px;
+		border-bottom: solid 1px #BFBFBF;
+		border-radius: 0 0 10px 10px;
+		background-color:#D1D6DC;
+		border-radius: 0 0 10px 10px;
+		}
+	.leftPane{
+		min-height:445px;
+		max-width:100%;
+		background-color:#FFFFFF;
+		}
+	.title{
+		height:30px;
+		color:black;
+		text-decoration:none;
+		}
+	.send-form{
+		min-height:100px;
+		max-width:100%;
+		margin-top:3px;
+		}
+	.msgContent{
+		width:98%;
+		height:370px;
+		margin:auto;
+		margin-left:5px;
+		margin-right:5px;
+		padding:0;
+		overflow:auto;
+		border: solid 1px #D1D6DC;
+		border-radius: 0 0 10px 10px;
+		background-color:#FFFFFF;
+		}
+	textarea{
+		max-width: 100%;
+		height:100%;
+		resize:none;
+		}
+	.msg-from{
+		text-align:left;
+		background-color:#ADD8E6;
+		border-radius: 0 0 10px 0;
+		max-width:80%;
+		margin-top:5px;
+		display:inline-block;
+		padding:5px;
+	}
+	.msg-to{
+		text-align:right;
+		background-color:#FFA500;
+		border-radius: 0 0 0 10px;
+		max-width:80%;
+		margin-top:5px;
+		display:-inline-block;
+		padding:5px;
+	}
+</style>
+<div class="row shadow border bg-light mx-auto chat-box" >
+	<div class="col-md-3 bg-light p-0">
+		<a class="title" data-toggle="collapse" href="#channelPanel" role="button" aria-expanded="false" aria-controls="channelPanel">
+			<h4 class="text-center title">Chanels and groups</h4>
+		</a>
+		<div class="border-top border-bottom border-right" style="max-height:445px;overflow:auto;">
+			<ul class="collapse show list-group" id="channelPanel" >
+			  <li class="list-group-item pt-1 pb-1">Cras justo odio</li>
+			  <li class="list-group-item pt-1 pb-1">Dapibusac facilisis in</li>
+			  <li class="list-group-item pt-1 pb-1">Morbi leo risus</li>
+			  <li class="list-group-item pt-1 pb-1">Porta ac consectetur ac</li>
+			  <li class="list-group-item pt-1 pb-1">Vestibulum at eros</li>
+			  <li class="list-group-item pt-1 pb-1">Cras justo odio</li>
+			  <li class="list-group-item pt-1 pb-1">Dapibusac facilisis in</li>
+			  <li class="list-group-item pt-1 pb-1">Morbi leo risus</li>
+			  <li class="list-group-item pt-1 pb-1">Porta ac consectetur ac</li>
+			  <li class="list-group-item pt-1 pb-1">Vestibulum at eros</li>
+			  <li class="list-group-item pt-1 pb-1">Cras justo odio</li>
+			  <li class="list-group-item pt-1 pb-1">Dapibusac facilisis in</li>
+			  <li class="list-group-item pt-1 pb-1">Morbi leo risus</li>
+			  <li class="list-group-item pt-1 pb-1">Porta ac consectetur ac</li>
+			  <li class="list-group-item pt-1 pb-1">Vestibulum at eros</li>
+			</ul>
+		</div>
+	</div>
+	<div class="col-md-9 bg-light">
+		<h4 class="text-center title">Chat box</h4>
+		<div class="row">
+			<div class="col-md-12">
+				<div id="msgContent" class="msgContent">
+					<span class="msg-from" >Mon texte est la</span>
+					<div class="clearfix"></div>
+					<span class="msg-to pull-right" >Mon texte est la aussi</span>
+					<div class="clearfix"></div>
+					<span class="msg-from" >Mon texte est la 2</span>
+					<div class="clearfix"></div>
+				</div>
+			</div>
+			<div class="col-md-12">
+				<div class="row send-form">
+					<div class="col-md-10 col-sm-12 pr-0">
+						<textarea class="form-control ml-1" name="message" id="message"></textarea>
+					</div>
+					<div class="col-md-2 col-sm-12 pt-3 pr-0">
+						<button role="button" id="send" class="btn btn-primary btn-block">Send</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+	/*
+    // Connect to websocket
+    var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+    // When connected, configure buttons
+    socket.on('connect', () => {
+
+        // Each button should emit a "submit vote" event
+        document.querySelectorAll('button').forEach(button => {
+            button.onclick = () => {
+                const selection = button.dataset.vote;
+                socket.emit('submit vote', {'selection': selection});
+            };
+        });
+    });
+
+    // When a new vote is announced, add to the unordered list
+    socket.on('vote totals', data => {
+        document.querySelector('#yes').innerHTML = data.yes;
+        document.querySelector('#no').innerHTML = data.no;
+        document.querySelector('#maybe').innerHTML = data.maybe;
+    });
+    */
+    // messaging
+    document.querySelector('#send').onclick= function(){
+		var msg_win = document.querySelector('#msgContent');
+		let cont = document.querySelector('#message');
+		if(cont.value.length>0){
+			let msg= document.createElement("span");
+			let clr= document.createElement("div");
+			msg.setAttribute('class','msg-to pull-right');
+			clr.setAttribute('class','clearfix');
+			msg.innerHTML = cont.value;
+			msg_win.appendChild(msg);
+			msg_win.appendChild(clr);
+			cont.value='';
+		}
+		}
+});
+</script>
+{% endblock%}

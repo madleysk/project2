@@ -1,0 +1,4 @@
+# Ignore thes files
+*.bat
+__pycache__/*
+venv/*
