@@ -41,6 +41,13 @@ def index(username=None):
 @app.route("/get_channels/data.json")
 def get_channels():
 	data={"page_title":"Channel list"}
+	not_mychannels = []
+	username = request.args.get('username')
+	if username and username is not None:
+		for room in chatrooms:
+			if room not in channels[username]:
+				not_mychannels.append(room)
+		return jsonify({"success":True, "chatrooms":not_mychannels})
 	return jsonify({"success":True, "chatrooms":chatrooms})
 
 
@@ -54,11 +61,14 @@ def get_messages():
 def create_channel():
 	data={"page_title":"Create channel"}
 	chname = request.form.get('chname')
-	print('valeur champs',chname)
+
 	if chname.lower() not in chatrooms:
-		chatrooms.append(chname.lower()) 
+		if len(chname) < 3:
+			chatrooms.append(chname.lower())
+		else:
+			return jsonify({"success":False,"message":"Channel name too short."})
 	else:
-		return jsonify({"success":False,"message":"Chnnel name already exists."})
+		return jsonify({"success":False,"message":"Channel name already exists."})
 	return jsonify({"success":True,"chatroom":chname})
 
 @socketio.on("new message")

@@ -43,6 +43,7 @@ textarea{
 	max-width:80%;
 	display:inline-block;
 	padding:5px;
+	margin-bottom: 3px;
 }
 .msg-from{
 	background-color:#FFA500;
@@ -50,6 +51,7 @@ textarea{
 	max-width:80%;
 	display:-inline-block;
 	padding:5px;
+	margin-bottom: 3px;
 }
 .msg-from small{
 	display:block;

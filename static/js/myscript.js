@@ -1,30 +1,4 @@
 document.addEventListener('DOMContentLoaded',function(){
-	// Connect to websocket
-	var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
-
-	// When connected, configure buttons
-	socket.on('connect', () => {
-		// submit new message event
-		document.querySelector('#send').onclick= function(){
-			const new_msg = document.querySelector('#message').value;
-			socket.emit('new message', {'message': new_msg,'sender':username,'dest':chanlName});
-			document.querySelector('#message').value='';     
-		}
-		// submit new channel event
-		document.querySelector('#createChanBtn').onclick= function(){
-			const new_channel = document.querySelector('#fchname').value;
-			socket.emit('create channel', {'channelName': new_channel,'username':username});
-			document.querySelector('#message').value='';
-		}
-		// submit join channel event
-		document.querySelector('#joinChanBtn').onclick= function(){
-			const chosen_channel = document.querySelector('#channelList').value;
-			socket.emit('join channel', {'channelName': chosen_channel,'username':username});
-			$('#joinChanModal').modal('toggle');
-			document.querySelector('#channelList').value='';
-		}
-	});
-
 	// Set starting value of username to 0
 	while (!localStorage.getItem('username') || localStorage.getItem('username')=='null'){
 		let usr = prompt('Please enter a display name:');
@@ -98,44 +72,6 @@ document.addEventListener('DOMContentLoaded',function(){
 	var chbTitle = document.querySelector('#chbTitle');
 	chbTitle.innerHTML += ' - '+username;		
 	
-	// messaging
-	document.querySelector('#send').onclick= function(){
-		const new_msg = document.querySelector('#message').value;
-		socket.emit('new message', {'message': new_msg,'sender':username,'dest':'yelemama'});
-	}
-
-	// When a new vote is announced, add to the unordered list
-	socket.on('messages update', data => {
-			add_msg(data['messages'][data['messages'].length-1]);
-	});
-
-	// When a new channel is announced, add to the unordered list
-	socket.on('channels update', data => {
-		//window.location.reload();
-		let ch_win = document.querySelector('#channelPanel');
-		let ch = document.createElement("a");
-		ch.setAttribute('class','list-group-item list-group-item-action pt-1 pb-1');
-		ch.setAttribute('href','javascript:;');
-		ch.setAttribute('id',data['mychannels'][data['mychannels'].length-1]);
-		ch.setAttribute('data-name',data['mychannels'][data['mychannels'].length-1]);
-		ch.innerHTML = data['mychannels'][data['mychannels'].length-1];
-		ch_win.appendChild(ch);
-		document.querySelectorAll('.list-group-item').forEach(a => {
-			a.onclick = () => {
-				selectChannel(a);
-			};
-		});
-		if(data.username == username){
-		$('#createChanModal').modal('hide');
-		document.querySelector('#fchname').value='';
-		}
-	});
-
-	// Show alert message on error
-	socket.on('error', data => {
-		alert(data['error']);
-	});
-
 	// Function selecting the active channel
 	function selectChannel(lnk){
 		document.querySelectorAll('.list-group-item').forEach(a => {
@@ -155,13 +91,14 @@ document.addEventListener('DOMContentLoaded',function(){
 		localStorage.removeItem('username');
 		window.location.reload();
 		}
+
 	document.querySelector('#logout').onclick= function(a){
 		logout();
 		}
 	// Getting channel list from server
 	$('#joinChanModal').on('show.bs.modal', function (event) {
 		const request = new XMLHttpRequest();
-		request.open('GET', '/get_channels/data.json');
+		request.open('GET', '/get_channels/data.json?'+'username='+username);
 
 		// Callback function for when request completes
 		request.onload = () => {
@@ -173,6 +110,11 @@ document.addEventListener('DOMContentLoaded',function(){
 				//clear messages first
 				document.querySelector('#channelList').innerHTML='';
 				const channels = data['chatrooms'];
+				let ch_item = document.createElement('option');
+				ch_item.setAttribute('value','');
+				ch_item.innerHTML='Select channel';
+				document.querySelector('#channelList').append(ch_item);
+				
 				channels.forEach(function(channel,index){
 					let ch_item = document.createElement('option');
 					ch_item.setAttribute('value',channel);
@@ -194,4 +136,71 @@ document.addEventListener('DOMContentLoaded',function(){
 			a.setAttribute("class","list-group-item list-group-item-action pt-1 pb-1 active");
 		}
 	});
+
+	// Connect to websocket
+	var socket = io.connect(location.protocol + '//' + document.domain + ':' + location.port);
+
+	// When connected, configure buttons
+	socket.on('connect', () => {
+		// submit new message event
+		document.querySelector('#send').onclick= function(){
+			const new_msg = document.querySelector('#message').value;
+			socket.emit('new message', {'message': new_msg,'sender':username,'dest':chanlName});
+			document.querySelector('#message').value='';     
+		}
+		// submit new channel event
+		document.querySelector('#createChanBtn').onclick= function(){
+			const new_channel = document.querySelector('#fchname').value;
+			socket.emit('create channel', {'channelName': new_channel,'username':username});
+			document.querySelector('#message').value='';
+		}
+		// submit join channel event
+		document.querySelector('#joinChanBtn').onclick= function(){
+			const chosen_channel = document.querySelector('#channelList').value;
+			if(chosen_channel !='')
+				socket.emit('join channel', {'channelName': chosen_channel,'username':username});
+			$('#joinChanModal').modal('toggle');
+			document.querySelector('#channelList').value='';
+		}
+	});
+	
+	// messaging
+	document.querySelector('#send').onclick= function(){
+		const new_msg = document.querySelector('#message').value;
+		socket.emit('new message', {'message': new_msg,'sender':username,'dest':'yelemama'});
+	}
+
+	// When a new vote is announced, add to the unordered list
+	socket.on('messages update', data => {
+			add_msg(data['messages'][data['messages'].length-1]);
+	});
+
+	// When a new channel is announced, add to the unordered list
+	socket.on('channels update', data => {
+		if(data.username == username){
+			let ch_win = document.querySelector('#channelPanel');
+			let ch = document.createElement("a");
+			ch.setAttribute('class','list-group-item list-group-item-action pt-1 pb-1');
+			ch.setAttribute('href','javascript:;');
+			ch.setAttribute('id',data['mychannels'][data['mychannels'].length-1]);
+			ch.setAttribute('data-name',data['mychannels'][data['mychannels'].length-1]);
+			ch.innerHTML = data['mychannels'][data['mychannels'].length-1];
+			ch_win.appendChild(ch);
+			document.querySelectorAll('.list-group-item').forEach(a => {
+				a.onclick = () => {
+					selectChannel(a);
+				};
+			});
+			$('#createChanModal').modal('hide');
+			document.querySelector('#fchname').value='';
+		}
+	});
+
+	// Show alert message on error
+	socket.on('error', data => {
+		if(data.username == username){
+			alert(data['error']);
+		}
+	});
+
 });
