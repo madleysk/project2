@@ -14,7 +14,11 @@
 <body>
 	<!-- Menu -->
 	<nav class="navbar sticky-top navbar-expand-lg navbar-light bg-light">
+	  {% if data.username %}
+	  <a class="navbar-brand" href="{{ url_for('index') }}{{data.username}}">Flack Chat</a>
+	  {% else %}
 	  <a class="navbar-brand" href="{{ url_for('index') }}">Flack Chat</a>
+	  {% endif %}
 	  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
 		<span class="navbar-toggler-icon"></span>
 	  </button>
@@ -22,7 +26,11 @@
 	  <div class="collapse navbar-collapse" id="navbarSupportedContent">
 		<ul class="navbar-nav mr-auto">
 		  <li class="nav-item active">
+			{% if data.username %}
+			<a class="nav-link" href="{{ url_for('index') }}{{data.username}}"><span class="fa fa-home">&nbsp;</span>Home <span class="sr-only">(current)</span></a>
+			{% else %}
 			<a class="nav-link" href="{{ url_for('index') }}"><span class="fa fa-home">&nbsp;</span>Home <span class="sr-only">(current)</span></a>
+			{% endif %}
 		  </li>
 		  {% if data.username %}
 			<li class="nav-item dropdown">
@@ -109,11 +117,9 @@
 			</button>
 		  </div>
 		  <div class="modal-body">
-			<form method="post">
 				<div class="form-group">
 					<input id="fchname" type="text" name="chname" class="form-control" maxlength="20" placeholder="Channel name" >
 				</div>
-			</form>
 		  </div>
 		  <div class="modal-footer">
 			<button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
@@ -131,9 +137,9 @@
 	<!-- SlimScroll -->
 	<script src="https://cdnjs.cloudflare.com/ajax/libs/jQuery-slimScroll/1.3.8/jquery.slimscroll.min.js"></script>
 	<!-- Socket IO -->
-	<script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
+	<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/2.3.0/socket.io.js"></script>
 	<!-- My Script -->
-	<script type="text/javascript" src="{{ url_for('static',filename='js/myscript.js') }}?v=1.16"></script>
+	<script type="text/javascript" src="{{ url_for('static',filename='js/myscript.js') }}?v=1.47"></script>
 </body>
 <script>
 document.addEventListener('DOMContentLoaded', () => {

@@ -1,14 +1,27 @@
 document.addEventListener('DOMContentLoaded',function(){
 	// Set starting value of username to 0
-	while (!localStorage.getItem('username') || localStorage.getItem('username')=='null'){
-		let usr = prompt('Please enter a display name:');
-		if(usr != '' && usr != 'null' && usr != null)
-			localStorage.setItem('username', usr);
-	}
-	const username = localStorage.getItem('username');
+
+	var username = localStorage.getItem('username');
 	var chanlName = localStorage.getItem('latestActiveChannel');
-	/*
-	if(username != "{{data.username}}"){
+	let comp=0;
+	while (!localStorage.getItem('username') || username =='null' || comp >= 3){
+		let usr = prompt('Please enter a display name:');
+		if(usr.trim() != '' && usr.trim() != 'null' && usr.trim() != null){
+			username = usr.trim();
+			localStorage.setItem('username', username);
+			window.location.replace('/'+username);
+		}
+		comp++;
+		if (comp >= 3){
+			alert('An error prevents you from accessing our application. Check your username and try again !');
+			comp=0;
+		}
+	}
+	
+	if(document.location.pathname.length <=3 && username != 'null')
+		window.location.replace('/'+username);
+	/*else if(document.location.pathname !='' && document.location.pathname != '/'+username.trim()){
+		localStorage.setItem('username', prompt('Please enter a valid display name (you may have to verify):'));
 		window.location.replace('/'+username);
 	}*/
 	
@@ -28,16 +41,16 @@ document.addEventListener('DOMContentLoaded',function(){
 				msg_span.setAttribute('class','msg-to');
 			}
 			if (msg.sender == username && msg.dest == chanlName)
-				msg_span.innerHTML ='<b>Me:</b> '+ msg.msg+'<br><small>'+msg.date+'</small>';
+				msg_span.innerHTML ='<strong>Me:</strong> '+ msg.msg+'<br><small>'+msg.date+'</small>';
 			else
-				msg_span.innerHTML ='<b>'+msg.sender+'</b>: '+ msg.msg+'<br><small>'+msg.date+'</small>';
+				msg_span.innerHTML ='<a href="?to='+msg.sender+'" class="user-from" title="Send private message.">'+msg.sender+'</a>: '+ msg.msg+'<br><small>'+msg.date+'</small>';
 			}
 	}
 
 	function loadData(chan=chanlName){
 		// Initialize new request
 		const request = new XMLHttpRequest();
-		request.open('GET', '/get_messages/data.json?'+'username='+username);
+		request.open('GET', '/get_messages/data.json?'+'username='+username+'&channel='+chan);
 
 		// Callback function for when request completes
 		request.onload = () => {
@@ -142,6 +155,8 @@ document.addEventListener('DOMContentLoaded',function(){
 
 	// When connected, configure buttons
 	socket.on('connect', () => {
+		// Tell the server to broadcast my status
+		socket.emit('user connected', {'username': username});
 		// submit new message event
 		document.querySelector('#send').onclick= function(){
 			const new_msg = document.querySelector('#message').value;
