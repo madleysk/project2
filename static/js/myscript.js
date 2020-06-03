@@ -184,7 +184,14 @@ document.addEventListener('DOMContentLoaded',function(){
 		const new_msg = document.querySelector('#message').value;
 		socket.emit('new message', {'message': new_msg,'sender':username,'dest':'yelemama'});
 	}
-
+	// handling enter key on text box
+	var textbox = document.querySelector('#message');
+	textbox.addEventListener("keypress", function(event){
+		if (event.keyCode === 13){
+			event.preventDefault();
+			document.querySelector('#send').click();
+			}
+		});
 	// When a new vote is announced, add to the unordered list
 	socket.on('messages update', data => {
 			add_msg(data['messages'][data['messages'].length-1]);
