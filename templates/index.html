@@ -32,12 +32,24 @@
 <div class="row shadow border bg-light mx-auto chat-box" >
 	<div class="col-md-3 bg-light p-0">
 		<a class="title" data-toggle="collapse" href="#channelPanel" role="button" aria-expanded="false" aria-controls="channelPanel">
-			<h4 class="text-center title">Channels</h4>
+			<h4 class="text-center title" title="click to toggle channels visibility">Channels</h4>
 		</a>
 		<div class="border-top border-bottom border-right leftPane-chanel">
 			<div class="collapse show list-group" id="channelPanel" >
 			{% for room in data.mychannels %}
-			  <a id="{{room}}" data-name="{{room}}" href="javascript:;" class="list-group-item list-group-item-action pt-1 pb-1" >{{room}}</a>
+			  <a id="{{room}}" data-name="{{room}}" data-type="channel" href="javascript:;" class="list-group-item list-group-item-action pt-1 pb-1" >{{room}}</a>
+			{% endfor %}
+			</div>
+
+				<a class="title" data-toggle="collapse" href="#userPanel" role="button" aria-expanded="false" aria-controls="userPanel">
+					<h5 class="text-center title" title="click to toggle users visibility">Users</h5>
+				</a>
+
+			<div class="collapse show list-group" id="userPanel" >
+			{% for user in data.usernames %}
+				{% if user != data.username %}
+				  <a id="{{user}}" data-name="{{user}}" href="javascript:;" class="list-group-item list-group-item-action pt-1 pb-1" >{{user}}</a>
+				{% endif %}
 			{% endfor %}
 			</div>
 		</div>
@@ -68,17 +80,14 @@
   <div class="nav nav-tabs" id="nav-tab" role="tablist">
     <a class="nav-item nav-link active" id="nav-home-tab" data-toggle="tab" href="#nav-home" role="tab" aria-controls="nav-home" aria-selected="true">Home</a>
     <a class="nav-item nav-link" id="nav-profile-tab" data-toggle="tab" href="#nav-profile" role="tab" aria-controls="nav-profile" aria-selected="false">Profile</a>
-    <a class="nav-item nav-link" id="nav-contact-tab" data-toggle="tab" href="#nav-contact" role="tab" aria-controls="nav-contact" aria-selected="false">Contact</a>
-	<button type="button" class="close pull-right" aria-label="Close">
+	<button type="button" class="close pull-right" aria-label="Close" data-toggle="collapse" data-target="#privChatBox" aria-expanded="false" aria-controls="privChatBox">
 	  <span aria-hidden="true">&times;</span>
 	</button>
-
-
   </div>
 </nav>
 <div class="tab-content" id="nav-tabContent">
   <div class="tab-pane fade show active" id="nav-home" role="tabpanel" aria-labelledby="nav-home-tab">
-	  <div class="row">
+	  <div class="collapse show row" id="privChatBox">
 		  <div class="col-12">
 			  <div id="priv-msgContent" class="priv-msgContent">
 				  <span class="msg-to"><strong>test:</strong> ceci est un message test</span>
@@ -108,8 +117,6 @@
 	  </div>
   </div>
   <div class="tab-pane fade" id="nav-profile" role="tabpanel" aria-labelledby="nav-profile-tab">
-  </div>
-  <div class="tab-pane fade" id="nav-contact" role="tabpanel" aria-labelledby="nav-contact-tab">
   </div>
 </div>
 </div>

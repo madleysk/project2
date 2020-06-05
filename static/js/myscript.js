@@ -26,7 +26,7 @@ document.addEventListener('DOMContentLoaded',function(){
 	}*/
 	
 	function add_msg(msg){
-		if(msg.dest == chanlName){
+		//if(msg.dest == chanlName){
 			let msg_win = document.querySelector('#msgContent');
 			let msg_span= document.createElement("span");
 			let clr= document.createElement("div");
@@ -37,14 +37,14 @@ document.addEventListener('DOMContentLoaded',function(){
 			if(msg.sender == username){
 				msg_span.setAttribute('class','msg-from pull-right');
 			}
-			if(msg.dest == chanlName && msg.sender != username){
+			else{
 				msg_span.setAttribute('class','msg-to');
 			}
-			if (msg.sender == username && msg.dest == chanlName)
+			if (msg.sender == username)
 				msg_span.innerHTML ='<strong>Me:</strong> '+ msg.msg+'<br><small>'+msg.date+'</small>';
 			else
-				msg_span.innerHTML ='<a href="?to='+msg.sender+'" class="user-from" title="Send private message.">'+msg.sender+'</a>: '+ msg.msg+'<br><small>'+msg.date+'</small>';
-			}
+				msg_span.innerHTML ='<a href="?chat='+msg.sender+'" class="user-from" title="Send private message.">'+msg.sender+'</a>: '+ msg.msg+'<br><small>'+msg.date+'</small>';
+		//	}
 	}
 
 	function loadData(chan=chanlName){
@@ -63,7 +63,7 @@ document.addEventListener('DOMContentLoaded',function(){
 				document.querySelector('#msgContent').innerHTML='';
 				const messages = data.messages;
 				messages.forEach(function(msg,index){
-				if( (msg.dest == username && msg.sender == chan)  || (msg.sender == username && msg.dest == chan) || (msg.dest == chan) ){
+				if( msg.dest == chan ){
 					add_msg(msg);
 					}
 				});
@@ -81,6 +81,42 @@ document.addEventListener('DOMContentLoaded',function(){
 		//return false;
 	}
 	loadData(chanlName);
+
+	function loadPrivData(chan=chanlName){
+		// Initialize new request
+		const request = new XMLHttpRequest();
+		request.open('GET', '/get_messages/data.json?'+'username='+username);
+
+		// Callback function for when request completes
+		request.onload = () => {
+			// Extract JSON data from request
+			const data = JSON.parse(request.responseText);
+
+			// Update the result div
+			if (data.success) {
+				//clear messages first
+				document.querySelector('#msgContent').innerHTML='';
+				const messages = data.messages;
+				messages.forEach(function(msg,index){
+				if( (msg.dest == username && msg.sender == chan)  || (msg.sender == username && msg.dest == chan)){
+					add_msg(msg);
+					}
+				});
+			}
+			else {
+				document.querySelector('#msgContent').innerHTML = 'There was an error.';
+			}
+		}
+		
+		// Add data to send with request
+		const data = new FormData();
+		//data.append('username',username);
+		// Send request
+		request.send(data);
+		//return false;
+	}
+	loadPrivData(chanlName);
+
 	// Load current value of  username on chatbox title
 	var chbTitle = document.querySelector('#chbTitle');
 	chbTitle.innerHTML += ' - '+username;		
@@ -91,9 +127,14 @@ document.addEventListener('DOMContentLoaded',function(){
 			a.setAttribute("class","list-group-item list-group-item-action pt-1 pb-1");
 			});
 		lnk.setAttribute("class","list-group-item list-group-item-action pt-1 pb-1 active");
+		// Reset badge if any
+		lnk.innerHTML = lnk.dataset.name;
 		chanlName = lnk.dataset.name;
 		localStorage.setItem('latestActiveChannel', chanlName);
-		loadData(chanlName);
+		if(lnk.dataset.type == 'channel')
+			loadData(chanlName);
+		else
+			loadPrivData(chanlName);
 	}
 	document.querySelectorAll('.list-group-item').forEach(a => {
 		a.onclick = () => {
@@ -147,6 +188,7 @@ document.addEventListener('DOMContentLoaded',function(){
 	document.querySelectorAll('.list-group-item').forEach(a => {
 		if(a.dataset.name == localStorage.getItem('latestActiveChannel')){
 			a.setAttribute("class","list-group-item list-group-item-action pt-1 pb-1 active");
+			selectChannel(a);
 		}
 	});
 
@@ -160,8 +202,10 @@ document.addEventListener('DOMContentLoaded',function(){
 		// submit new message event
 		document.querySelector('#send').onclick= function(){
 			const new_msg = document.querySelector('#message').value;
-			socket.emit('new message', {'message': new_msg,'sender':username,'dest':chanlName});
-			document.querySelector('#message').value='';     
+			if(new_msg.trim()!='' && chanlName!=''){
+				socket.emit('new message', {'message': new_msg,'sender':username,'dest':chanlName});
+				document.querySelector('#message').value=''; 
+			}    
 		}
 		// submit new channel event
 		document.querySelector('#createChanBtn').onclick= function(){
@@ -179,11 +223,6 @@ document.addEventListener('DOMContentLoaded',function(){
 		}
 	});
 	
-	// messaging
-	document.querySelector('#send').onclick= function(){
-		const new_msg = document.querySelector('#message').value;
-		socket.emit('new message', {'message': new_msg,'sender':username,'dest':'yelemama'});
-	}
 	// handling enter key on text box
 	var textbox = document.querySelector('#message');
 	textbox.addEventListener("keypress", function(event){
@@ -192,9 +231,19 @@ document.addEventListener('DOMContentLoaded',function(){
 			document.querySelector('#send').click();
 			}
 		});
-	// When a new vote is announced, add to the unordered list
+	// When a new message is announced, add to the list
 	socket.on('messages update', data => {
-			add_msg(data['messages'][data['messages'].length-1]);
+		const newMSG= data['messages'][data['messages'].length-1];
+		if( (newMSG.dest == username && newMSG.sender == chanlName)  || (newMSG.sender == username && newMSG.dest == chanlName) || newMSG.dest == chanlName )
+			add_msg(newMSG);
+		// Showing badge for new message
+		if(document.querySelector('#'+newMSG.dest) != null && newMSG.dest == username){
+			let cont = document.querySelector('#'+newMSG.dest);
+			let badge = document.createElement('span');
+			badge.setAttribute('class','badge badge-primary pull-right');
+			badge.innerHTML='new';
+			cont.appendChild(badge);
+		}
 	});
 
 	// When a new channel is announced, add to the unordered list
@@ -206,6 +255,7 @@ document.addEventListener('DOMContentLoaded',function(){
 			ch.setAttribute('href','javascript:;');
 			ch.setAttribute('id',data['mychannels'][data['mychannels'].length-1]);
 			ch.setAttribute('data-name',data['mychannels'][data['mychannels'].length-1]);
+			ch.setAttribute('data-type','channel');
 			ch.innerHTML = data['mychannels'][data['mychannels'].length-1];
 			ch_win.appendChild(ch);
 			document.querySelectorAll('.list-group-item').forEach(a => {
