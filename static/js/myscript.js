@@ -237,19 +237,41 @@ document.addEventListener('DOMContentLoaded',function(){
 		if( (newMSG.dest == username && newMSG.sender == chanlName)  || (newMSG.sender == username && newMSG.dest == chanlName) || newMSG.dest == chanlName )
 			add_msg(newMSG);
 		// Showing badge for new message
-		if(document.querySelector('#'+newMSG.dest) != null && newMSG.dest == username){
-			let cont = document.querySelector('#'+newMSG.dest);
+		if(newMSG.dest == username){ //Private message
 			let badge = document.createElement('span');
 			badge.setAttribute('class','badge badge-primary pull-right');
 			badge.innerHTML='new';
-			cont.appendChild(badge);
+			document.querySelector('#'+newMSG.sender).appendChild(badge);
+		}
+		else if(document.querySelector('#'+newMSG.dest) && newMSG.sender != username){ // Chat room message
+			let badge = document.createElement('span');
+			badge.setAttribute('class','badge badge-primary pull-right');
+			badge.innerHTML='new';
+			document.querySelector('#'+newMSG.dest).appendChild(badge);
 		}
 	});
 
+	// update channels list function
+	function update_channels(data){
+		let ch_win = document.querySelector('#channelPanel');
+		let ch = document.createElement("a");
+		ch.setAttribute('class','list-group-item list-group-item-action pt-1 pb-1');
+		ch.setAttribute('href','javascript:;');
+		ch.setAttribute('id',data['mychannels'][data['mychannels'].length-1]);
+		ch.setAttribute('data-name',data['mychannels'][data['mychannels'].length-1]);
+		ch.setAttribute('data-type','channel');
+		ch.innerHTML = data['mychannels'][data['mychannels'].length-1];
+		ch_win.appendChild(ch);
+		document.querySelectorAll('.list-group-item').forEach(a => {
+			a.onclick = () => {
+				selectChannel(a);
+			};
+		});
+	}
 	// When a new channel is announced, add to the unordered list
 	socket.on('channels update', data => {
 		if(data.username == username){
-			let ch_win = document.querySelector('#channelPanel');
+			/*let ch_win = document.querySelector('#channelPanel');
 			let ch = document.createElement("a");
 			ch.setAttribute('class','list-group-item list-group-item-action pt-1 pb-1');
 			ch.setAttribute('href','javascript:;');
@@ -262,10 +284,17 @@ document.addEventListener('DOMContentLoaded',function(){
 				a.onclick = () => {
 					selectChannel(a);
 				};
-			});
+			});*/
+			update_channels(data);
 			$('#createChanModal').modal('hide');
 			document.querySelector('#fchname').value='';
 		}
+	});
+
+	// When a new user is connected
+	socket.on('user online', data => {
+		if (data.username != username)
+			update_channels(data);
 	});
 
 	// Show alert message on error

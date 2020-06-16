@@ -14,12 +14,12 @@ channels={}
 chmsg={chatrooms[0]:[]}
 privateMSG=[]
 
-chmsg['general'].append({"msg":"Salut Madley","date":"2020/05/25 18:30","sender":"yelemama","dest":"general"})
-chmsg['general'].append({"msg":"Comment vas-tu ?","date":"2020/05/25 18:35","sender":"yelemama","dest":"general"})
-chmsg['general'].append({"msg":"Bonjour my friend, suis la et toi ?","date":"2020/05/25 18:45","sender":"madleysk","dest":"general"})
-usernames.append('madleysk')
-usernames.append('yelemama')
-usernames.append('skylee')
+#chmsg['general'].append({"msg":"Salut Madley","date":"2020/05/25 18:30","sender":"yelemama","dest":"general"})
+#chmsg['general'].append({"msg":"Comment vas-tu ?","date":"2020/05/25 18:35","sender":"yelemama","dest":"general"})
+#chmsg['general'].append({"msg":"Bonjour my friend, suis la et toi ?","date":"2020/05/25 18:45","sender":"madleysk","dest":"general"})
+#usernames.append('madleysk')
+#usernames.append('yelemama')
+#usernames.append('skylee')
 
 @app.route("/")
 @app.route("/<string:username>")
@@ -123,4 +123,5 @@ def on_join_channel(data):
 
 @socketio.on("user connected")
 def on_user_connected(data):
-	print('User '+data['username']+' connected')
+	# print('User '+data['username']+' connected')
+	emit("user online",{"username":data['username']})
