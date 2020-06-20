@@ -256,7 +256,7 @@ document.addEventListener('DOMContentLoaded',function(){
 		let ch_win = document.querySelector('#channelPanel');
 		let ch = document.createElement("a");
 		ch.setAttribute('class','list-group-item list-group-item-action pt-1 pb-1');
-		ch.setAttribute('href','javascript:;');
+		ch.setAttribute('href','javascript:void(0);');
 		ch.setAttribute('id',data['mychannels'][data['mychannels'].length-1]);
 		ch.setAttribute('data-name',data['mychannels'][data['mychannels'].length-1]);
 		ch.setAttribute('data-type','channel');
@@ -271,20 +271,7 @@ document.addEventListener('DOMContentLoaded',function(){
 	// When a new channel is announced, add to the unordered list
 	socket.on('channels update', data => {
 		if(data.username == username){
-			/*let ch_win = document.querySelector('#channelPanel');
-			let ch = document.createElement("a");
-			ch.setAttribute('class','list-group-item list-group-item-action pt-1 pb-1');
-			ch.setAttribute('href','javascript:;');
-			ch.setAttribute('id',data['mychannels'][data['mychannels'].length-1]);
-			ch.setAttribute('data-name',data['mychannels'][data['mychannels'].length-1]);
-			ch.setAttribute('data-type','channel');
-			ch.innerHTML = data['mychannels'][data['mychannels'].length-1];
-			ch_win.appendChild(ch);
-			document.querySelectorAll('.list-group-item').forEach(a => {
-				a.onclick = () => {
-					selectChannel(a);
-				};
-			});*/
+			// call update channel function
 			update_channels(data);
 			$('#createChanModal').modal('hide');
 			document.querySelector('#fchname').value='';
@@ -293,8 +280,10 @@ document.addEventListener('DOMContentLoaded',function(){
 
 	// When a new user is connected
 	socket.on('user online', data => {
-		if (data.username != username)
+		console.log('user connected: '+data.username);
+		if (data.username != username){
 			update_channels(data);
+		}
 	});
 
 	// Show alert message on error

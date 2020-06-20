@@ -37,7 +37,7 @@
 		<div class="border-top border-bottom border-right leftPane-chanel">
 			<div class="collapse show list-group" id="channelPanel" >
 			{% for room in data.mychannels %}
-			  <a id="{{room}}" data-name="{{room}}" data-type="channel" href="javascript:;" class="list-group-item list-group-item-action pt-1 pb-1" >{{room}}</a>
+			  <a id="{{room}}" data-name="{{room}}" data-type="channel" href="javascript:void(0);" class="list-group-item list-group-item-action pt-1 pb-1" >{{room}}</a>
 			{% endfor %}
 			</div>
 
@@ -48,7 +48,7 @@
 			<div class="collapse show list-group" id="userPanel" >
 			{% for user in data.usernames %}
 				{% if user != data.username %}
-				  <a id="{{user}}" data-name="{{user}}" href="javascript:;" class="list-group-item list-group-item-action pt-1 pb-1" >{{user}}</a>
+				  <a id="{{user}}" data-name="{{user}}" href="javascript:void(0);" class="list-group-item list-group-item-action pt-1 pb-1" >{{user}}</a>
 				{% endif %}
 			{% endfor %}
 			</div>
