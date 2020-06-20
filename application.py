@@ -43,7 +43,9 @@ def index(username=None):
 	data['mychannels']=mychannels
 	data['messages']=mymessages
 	if username != None and username not in usernames:
-		usernames.append(username)
+		if username != 'favicon.ico':
+			"""Getting rid of the favicon.ico in users name list"""
+			usernames.append(username)
 	data['username']= username
 	data['usernames']= usernames
 	return render_template("index.html",data=data)
@@ -51,7 +53,7 @@ def index(username=None):
 
 @app.route("/get_channels/data.json")
 def get_channels():
-	data={"page_title":"Channel list"}
+	# data={"page_title":"Channel list"}
 	not_mychannels = []
 	username = request.args.get('username')
 	if username and username is not None:
@@ -64,8 +66,8 @@ def get_channels():
 
 @app.route("/get_messages/data.json")
 def get_messages():
-	data={"page_title":"Home page"}
-	username = request.args.get('username')
+	# data={"page_title":"Home page"}
+	# username = request.args.get('username')
 	channel = request.args.get('channel')
 	if channel and channel is not None:
 		if channel in chmsg:
@@ -95,12 +97,12 @@ def message(data):
 
 @socketio.on("create channel")
 def on_create_channel(data):
-	
 	if len(data['channelName']) >= 3:
 		if data['channelName'].lower() in usernames:
 			emit("error", {"username":data['username'],"error":'Channel name not available.'}, broadcast=True)
 		else:
 			if data['channelName'].lower() not in chatrooms:
+				print('socket create channel '+data['channelName'].lower())
 				chatrooms.append(data['channelName'].lower())
 				channels[data['username']].append(data['channelName'].lower())
 				emit("channels update", {"username":data['username'],"mychannels":channels[data['username']]}, broadcast=True)
@@ -113,6 +115,7 @@ def on_create_channel(data):
 def on_join_channel(data):
 	if data['username'] in usernames:
 		if data['channelName'] not in channels[data['username']]:
+			print('socket join channel '+data['channelName'].lower())
 			channels[data['username']].append(data['channelName'])
 			emit("channels update", {"username":data['username'],"mychannels":channels[data['username']]}, broadcast=True)
 		else:
